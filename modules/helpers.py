@@ -1,6 +1,7 @@
 import requests
 import re
 from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
 
 def generate_headers(args, example_dict):
     '''
@@ -46,7 +47,20 @@ def write_data_row(worksheet, data, row):
     col = 0
     for key in data:
         worksheet.write(row, col, data[key])
+        # write_data_row_col(worksheet, data[key], row, col)
         col += 1
+
+def write_data_row_col(worksheet, data, row, col):
+    '''
+    Writes data to row-col.
+
+    Parameters:
+            worksheet (worksheet object): Worksheet where data should be written
+            data (dict): Data to write
+            row (int): No. of row to write to
+            col (int): No. of col to write to
+    '''
+    worksheet.write(row, col, data)
 
 def get_website_data(url):
     '''
@@ -117,3 +131,16 @@ def find_emails(content, base_soup, i, queries=[], found=[]):
         return find_emails(cont, base_soup, i + 1, queries, found)
     else:
         return found
+
+def is_end_of_list(driver):
+    END_OF_LIST_CLASS = "PbZDve"
+    END_OF_LIST_DIV_TEXT = "You've reached the end of the list."
+
+    try:
+        end_of_list_div = driver.find_element(By.CLASS_NAME, END_OF_LIST_CLASS)
+    except:
+        # end_of_list_div is not present
+        end_of_list_div = None
+    finally:
+        # end_of_list_div is present
+        return end_of_list_div and (end_of_list_div.text == END_OF_LIST_DIV_TEXT)
